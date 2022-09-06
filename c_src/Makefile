@@ -10,16 +10,11 @@ LDFLAGS ?=
 CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter
 CFLAGS += -std=c99 -D_GNU_SOURCE
 
-
-ifeq ($(MIX_COMPILE_PATH),)
-  $(error MIX_COMPILE_PATH should be set by elixir_make!)
-endif
-
-PREFIX = $(MIX_COMPILE_PATH)/../priv
-BUILD  = $(MIX_COMPILE_PATH)/../obj
+PREFIX = $(MIX_APP_PATH)/priv
+BUILD  = $(MIX_APP_PATH)/obj
 
 # Normal build
-SRC = c_src/hello_world.c \
+SRC = c_src/RGB.c \
   c_src/rpi_ws281x/dma.c c_src/rpi_ws281x/mailbox.c c_src/rpi_ws281x/pwm.c \
   c_src/rpi_ws281x/rpihw.c c_src/rpi_ws281x/pcm.c c_src/rpi_ws281x/ws2811.c
 

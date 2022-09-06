@@ -1,9 +1,8 @@
-defmodule Pi.MixProject do
+defmodule RGBPi.MixProject do
   use Mix.Project
 
-  @app :pi
+  @app :rgbpi
   @version "0.1.0"
-  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :bbb, :osd32mp1, :x86_64, :grisp2]
 
   def project do
     [
@@ -26,7 +25,7 @@ defmodule Pi.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Pi.Application, []},
+      mod: {RGBPi.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -39,18 +38,9 @@ defmodule Pi.MixProject do
       {:shoehorn, "~> 0.9.1"},
       {:ring_logger, "~> 0.8.5"},
       {:toolshed, "~> 0.2.26"},
-
-      # Dependencies for all targets except :host
-      {:nerves_runtime, "~> 0.13.0", targets: @all_targets},
-      {:nerves_pack, "~> 0.7.0", targets: @all_targets},
-
-      # Dependencies for specific targets
-      # NOTE: It's generally low risk and recommended to follow minor version
-      # bumps to Nerves systems. Since these include Linux kernel and Erlang
-      # version updates, please review their release notes in case
-      # changes to your application are needed.
+      {:nerves_runtime, "~> 0.13.0"},
+      {:nerves_pack, "~> 0.7.0"},
       {:nerves_system_rpi3a, "~> 1.19", runtime: false, targets: :rpi3a},
-
       {:gen_state_machine, "~> 3.0"},
       {:elixir_make, "~> 0.6.3"}
     ]
