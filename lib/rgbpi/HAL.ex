@@ -4,7 +4,7 @@ defmodule RGBPi.HAL do
 
   require Logger
 
-  @dma_channel 5
+  @dma_channel 10
   @strip1_pin 12
   @strip1_length 30
   @strip2_pin 13
@@ -54,13 +54,18 @@ defmodule RGBPi.HAL do
     {:reply, state, state}
   end
 
-  def handle_info({_port, {:data, {_, 'DBG: ' ++ payload}}}, state) do
-    Logger.debug("RGB: #{payload}")
+  def handle_info({_port, {:data, {_, 'OK'}}}, state) do
+    Logger.info("RGB: OK")
     {:noreply, state}
   end
 
   def handle_info({_port, {:data, {_, 'OK: ' ++ payload}}}, state) do
     Logger.info("RGB: #{payload}")
+    {:noreply, state}
+  end
+
+  def handle_info({_port, {:data, {_, 'DBG: ' ++ payload}}}, state) do
+    Logger.debug("RGB: #{payload}")
     {:noreply, state}
   end
   
@@ -74,7 +79,7 @@ defmodule RGBPi.HAL do
   end
   
   def handle_info({_port, {:exit_status, status}}, state) do
-    Logger.error("RGB has died with exit_status: #{status}")
+    Logger.error("RGB: died with exit_status: #{status}")
     {:noreply, state}
   end
   

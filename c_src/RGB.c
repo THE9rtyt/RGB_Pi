@@ -30,9 +30,9 @@ args:
 int main(int argc, char *argv[]) {
   debug("starting main");
   debug("dma channel: %d", atoi(argv[1]));
-  debug("strip1 pin: %d", atoi(argv[2]));
+  debug("strip1 pin: %d", strtol(argv[3], NULL, 10));
   debug("strip1 length: %d", atoi(argv[3]));
-  debug("strip2 pin: %d", atoi(argv[4]));
+  debug("strip2 pin: %d", strtol(argv[5], NULL, 10));
   debug("strip2 length: %d", atoi(argv[5]));
 
   ws2811_return_t ret;
@@ -44,14 +44,14 @@ int main(int argc, char *argv[]) {
           [0] = {
               .gpionum = atoi(argv[2]),
               .invert = 0,
-              .count = atoi(argv[3]),
+              .count = strtol(argv[3], NULL, 10),
               .strip_type = WS2811_STRIP_RGB,
               .brightness = 255,
           },
           [1] = {
               .gpionum = atoi(argv[4]),
               .invert = 0,
-              .count = atoi(argv[5]),
+              .count = strtol(argv[5], NULL, 10),
               .strip_type = WS2811_STRIP_RGB,
               .brightness = 255,
           },
