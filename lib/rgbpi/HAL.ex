@@ -1,43 +1,41 @@
 defmodule RGBPi.HAL do
 
+  import RGBPi.Guards
+
   use GenServer
 
   require Logger
 
   @dma_channel 10
   @strip1_pin 12
-  @strip1_length 30
+  @strip1_length 150
   @strip2_pin 13
-  @strip2_length 30
+  @strip2_length 150
 
-  def set_pixel(strip, pixel, "#" <> hexcolor) do
+  def set_pixel(strip, pixel, "#" <> hexcolor) when is_strip(strip) do
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
-  def set_pixel(strip, pixel, {r,g,b} = _color) 
-      when r in 0..255 and g in 0..255 and b in 0..255 do
+  def set_pixel(strip, pixel, {r,g,b} = _color) when is_strip(strip) and is_rgb(r,g,b) do
     hexcolor = Base.encode16(<<0,r,g,b>>)
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
-  def set_pixel(strip, pixel, {w,r,g,b} = _color) 
-      when w in 0..255 and r in 0..255 and g in 0..255 and b in 0..255 do
+  def set_pixel(strip, pixel, {w,r,g,b} = _color) when is_strip(strip) and is_wrgb(w,r,g,b) do
     hexcolor = Base.encode16(<<w,r,g,b>>)
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
-  def fill_strip(strip, "#" <> hexcolor) do
+  def fill_strip(strip, "#" <> hexcolor) when is_strip(strip) do
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
 
-  def fill_strip(strip, {r,g,b} = _color) 
-      when r in 0..255 and g in 0..255 and b in 0..255 do
+  def fill_strip(strip, {r,g,b} = _color) when is_strip(strip) and is_rgb(r,g,b) do
     hexcolor = Base.encode16(<<0,r,g,b>>)
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
 
-  def fill_strip(strip, {w,r,g,b} = _color) 
-      when w in 0..255 and r in 0..255 and g in 0..255 and b in 0..255 do
+  def fill_strip(strip, {w,r,g,b} = _color) when is_strip(strip) and is_wrgb(w,r,g,b) do
     hexcolor = Base.encode16(<<w,r,g,b>>)
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
@@ -63,19 +61,19 @@ defmodule RGBPi.HAL do
   def init(_args) do
     file = Application.app_dir(:rgbpi,["priv","RGB"]) |> String.to_charlist()
 
-    args = [
-      "#{@dma_channel}",
-      "#{@strip1_pin}",
-      "#{@strip1_length}",
-      "#{@strip2_pin}",
-      "#{@strip2_length}"
-    ]
+    config = %{
+      dma_channel: @dma_channel,
+      strip1_pin: @strip1_pin,
+      strip1_length: @strip1_length,
+      strip2_pin: @strip2_pin,
+      strip2_length: @strip2_length
+    }
 
-    port = connect_to_port(file, args)
+    port = connect_to_port(file, config)
   
     state = %{
       file: file,
-      args: args,
+      config: config,
       port: port
     }
     
@@ -135,7 +133,15 @@ defmodule RGBPi.HAL do
     {:noreply, state}
   end
   
-  defp connect_to_port(file, args) do
+  defp connect_to_port(file, config) do
+    args = [
+      "#{config.dma_channel}",
+      "#{config.strip1_pin}",
+      "#{config.strip1_length}",
+      "#{config.strip2_pin}",
+      "#{config.strip2_length}"
+    ]
+
     Port.open({:spawn_executable, file}, [
       {:args, args},
       {:line, 1024},
