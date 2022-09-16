@@ -32,6 +32,23 @@ void set_pixel(ws2811_channel_t *channels) {
   reply_ok();
 }
 
+void fill_strip(ws2811_channel_t *channels) {
+  uint8_t strip;
+  ws2811_led_t color;
+  char nl;
+  if (scanf("%hhu %x%c", &strip,&color, &nl) != 3 || nl != '\n') {
+    reply_error("Argument error");
+    return;
+  };
+
+  debug("filling strip: %d color: 0x%08x", strip, color);
+
+  for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
+    channels[strip].leds[pixel] = color;
+  };
+  reply_ok();
+}
+
 /*
 using blinkchain as a reference I have reversed engineered the I/O 
 between C and Elixir :poggies:
@@ -90,7 +107,9 @@ int main(int argc, char *argv[]) {
 
     if (!strcasecmp(buffer, "set_pixel")) {
       set_pixel(ledstring.channel);
-    } else if (!strcasecmp(buffer, "render")) {
+    } else if (!strcasecmp(buffer, "fill_strip")) {
+      fill_strip(ledstring.channel);
+    }else if (!strcasecmp(buffer, "render")) {
       ws2811_return_t result = ws2811_render(&ledstring);
       if (result != WS2811_SUCCESS)
         errx(EXIT_FAILURE, "ws2811_render failed: %d (%s)", result, ws2811_get_return_t_str(result));

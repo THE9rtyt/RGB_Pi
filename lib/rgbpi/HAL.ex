@@ -26,6 +26,26 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
+  def fill_strip(strip, "#" <> hexcolor) do
+    GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
+  end
+
+  def fill_strip(strip, {r,g,b} = _color) 
+      when r in 0..255 and g in 0..255 and b in 0..255 do
+    hexcolor = Base.encode16(<<0,r,g,b>>)
+    GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
+  end
+
+  def fill_strip(strip, {w,r,g,b} = _color) 
+      when w in 0..255 and r in 0..255 and g in 0..255 and b in 0..255 do
+    hexcolor = Base.encode16(<<w,r,g,b>>)
+    GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
+  end
+
+  def strip_off(strip) do
+    fill_strip(strip, "#00000000")
+  end
+
   def render() do
     GenServer.call(__MODULE__, :render)
   end
@@ -58,12 +78,17 @@ defmodule RGBPi.HAL do
       args: args,
       port: port
     }
-  
+    
+    send(self(), :init_strips)
     {:ok, state}
   end
 
   def handle_call({:set_pixel, strip, pixel, color}, _from, state) do
     {:reply, send_to_port("set_pixel #{strip} #{pixel} 0x#{color}", state.port), state}
+  end
+
+  def handle_call({:fill_strip, strip, color}, _from, state) do
+    {:reply, send_to_port("fill_strip #{strip} 0x#{color}", state.port), state}
   end
 
   def handle_call(:render, _from, state) do
@@ -72,6 +97,13 @@ defmodule RGBPi.HAL do
 
   def handle_call({:send, command}, _from, state) do
     {:reply, send_to_port(command, state.port), state}
+  end
+
+  def handle_info(:init_strips, state) do
+    :ok = send_to_port("fill_strip 0 0x00000000", state.port)
+    :ok = send_to_port("fill_strip 0 0x00000000", state.port)
+    :ok = send_to_port("render", state.port)
+    {:noreply, state}
   end
 
   def handle_info({_port, {:data, {_, 'OK'}}}, state) do
@@ -107,8 +139,8 @@ defmodule RGBPi.HAL do
     Port.open({:spawn_executable, file}, [
       {:args, args},
       {:line, 1024},
-      :use_stdio, 
-      :stderr_to_stdout, 
+      :use_stdio,
+      :stderr_to_stdout,
       :exit_status
     ])
   end
@@ -124,7 +156,7 @@ defmodule RGBPi.HAL do
       {^port, {:data, {_, 'OK'}}} -> :ok
       {^port, {:data, {_, 'OK: ' ++ payload}}} -> {:ok, to_string(payload)}
       {^port, {:data, {_, 'ERR: ' ++ payload}}} -> {:error,to_string(payload)}
-      {^port, {:exit_status, status}} -> 
+      {^port, {:exit_status, status}} ->
         Logger.error("RGB has died with exit_status: #{status}")
         raise "RGB has died with exit_status: #{status}"
     after
