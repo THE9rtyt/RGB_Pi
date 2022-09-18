@@ -29,7 +29,7 @@ defmodule RGBPi.MixProject do
       extra_applications: [:logger, :runtime_tools]
     ]
   end
-
+  
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
@@ -42,7 +42,9 @@ defmodule RGBPi.MixProject do
       {:nerves_pack, "~> 0.7.0"},
       {:nerves_system_rpi3a, "~> 1.19", runtime: false, targets: :rpi3a},
       {:gen_state_machine, "~> 3.0"},
-      {:elixir_make, "~> 0.6.3"}
+      {:elixir_make, "~> 0.6.3"},
+      {:blue_heron, "~> 0.3.0"},
+      {:blue_heron_transport_uart, "~> 0.1.3"}
     ]
   end
 
