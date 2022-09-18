@@ -6,6 +6,9 @@ defmodule RGBPi.BLE do
   
   require Logger
 
+  @action_init [{:next_event, :internal, :init}]
+  @action_timeout [{:timeout, 5000, nil}]
+
   @behaviour BlueHeron.GATT.Server
 
   # readonly  properties:         0b0000010
@@ -17,13 +20,15 @@ defmodule RGBPi.BLE do
   # read/write/notify properties: 0b0011010
 
   alias RGBPi.BLE.{
-    GenericAccessService
+    GenericAccessService,
+    RGBService
   }
 
   @impl BlueHeron.GATT.Server
   def profile() do 
     [
-      GenericAccessService.service()
+      GenericAccessService.service(),
+      RGBService.service()
     ] 
   end
 
@@ -76,7 +81,7 @@ defmodule RGBPi.BLE do
   @impl GenStateMachine
   def init(_args) do
     data = %{context: nil, peripheral: nil}
-    actions = [{:next_event, :internal, :init}]
+    actions = @action_init
     {:ok, :reset, data, actions}
   end
 
@@ -92,11 +97,11 @@ defmodule RGBPi.BLE do
     case BlueHeron.transport(config) do
       {:ok, context} ->
         Logger.info("Bluetooth loaded")
-        actions = [{:next_event, :internal, :init}]
+        actions = @action_init
         {:next_state, :peripheral, %{data | context: context}, actions}
       {:error, reason} ->
         Logger.error("Bluetooth failed to load: #{inspect(reason)}")
-        actions = [{:timeout, 5000, nil}]
+        actions = @action_timeout
         {:keep_state, data, actions}
     end
   end
@@ -108,11 +113,11 @@ defmodule RGBPi.BLE do
       {:ok, peripheral} ->
         Logger.info("Bluetooth peripheral started")
         data = %{data | peripheral: peripheral}
-        actions = [{:next_event, :internal, :init}]
+        actions = @action_init
         {:next_state, :advertise, data, actions}
       {:error, reason} ->
         Logger.error("Bluetooth failed to start peripheral: #{inspect(reason)}")
-        actions = [{:timeout, 5000, nil}]
+        actions = @action_timeout
         {:keep_state, data, actions}
     end
   end
@@ -139,13 +144,13 @@ defmodule RGBPi.BLE do
     catch
       _, _ ->
         Logger.error("failed to start adverting bluetooth. Resetting module")
-        actions = [{:next_event, :internal, :init}]
+        actions = @action_init
         {:next_state, :reset, data, actions}
     end
   end
 
   def handle_event(:timeout, _old_state, state, data) do
-    actions = [{:next_event, :internal, :init}]
+    actions = @action_init
     {:next_state, state, data, actions}
   end
 

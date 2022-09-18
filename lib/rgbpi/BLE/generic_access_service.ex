@@ -22,7 +22,7 @@ defmodule RGBPi.BLE.GenericAccessService do
 
   def read(:device_name), do: "RGBPi"
 
-  def read({:gap, :appearance}) do
+  def read(:appearance) do
     # The GAP service must have an appearance attribute,
     # whose value must be picked from this document: https://specificationrefs.bluetooth.com/assigned-values/Appearance%20Values.pdf
     # This is the standard apperance value for "IoT Gateway"
