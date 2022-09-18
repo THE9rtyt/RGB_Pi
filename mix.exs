@@ -29,7 +29,7 @@ defmodule RGBPi.MixProject do
       extra_applications: [:logger, :runtime_tools]
     ]
   end
-  
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [

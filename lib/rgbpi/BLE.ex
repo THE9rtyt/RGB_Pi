@@ -1,9 +1,8 @@
 defmodule RGBPi.BLE do
-
   alias BlueHeron.Peripheral
 
   use GenStateMachine, callback_mode: :handle_event_function
-  
+
   require Logger
 
   @action_init [{:next_event, :internal, :init}]
@@ -25,11 +24,11 @@ defmodule RGBPi.BLE do
   }
 
   @impl BlueHeron.GATT.Server
-  def profile() do 
+  def profile() do
     [
       GenericAccessService.service(),
       RGBService.service()
-    ] 
+    ]
   end
 
   @impl BlueHeron.GATT.Server
@@ -99,6 +98,7 @@ defmodule RGBPi.BLE do
         Logger.info("Bluetooth loaded")
         actions = @action_init
         {:next_state, :peripheral, %{data | context: context}, actions}
+
       {:error, reason} ->
         Logger.error("Bluetooth failed to load: #{inspect(reason)}")
         actions = @action_timeout
@@ -115,6 +115,7 @@ defmodule RGBPi.BLE do
         data = %{data | peripheral: peripheral}
         actions = @action_init
         {:next_state, :advertise, data, actions}
+
       {:error, reason} ->
         Logger.error("Bluetooth failed to start peripheral: #{inspect(reason)}")
         actions = @action_timeout
@@ -153,5 +154,4 @@ defmodule RGBPi.BLE do
     actions = @action_init
     {:next_state, state, data, actions}
   end
-
 end

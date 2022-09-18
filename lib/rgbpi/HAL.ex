@@ -1,5 +1,4 @@
 defmodule RGBPi.HAL do
-
   import RGBPi.Guards
 
   use GenServer
@@ -16,13 +15,14 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
-  def set_pixel(strip, pixel, {r,g,b} = _color) when is_strip(strip) and is_rgb(r,g,b) do
-    hexcolor = Base.encode16(<<0,r,g,b>>)
+  def set_pixel(strip, pixel, {r, g, b} = _color) when is_strip(strip) and is_rgb(r, g, b) do
+    hexcolor = Base.encode16(<<0, r, g, b>>)
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
-  def set_pixel(strip, pixel, {w,r,g,b} = _color) when is_strip(strip) and is_wrgb(w,r,g,b) do
-    hexcolor = Base.encode16(<<w,r,g,b>>)
+  def set_pixel(strip, pixel, {w, r, g, b} = _color)
+      when is_strip(strip) and is_wrgb(w, r, g, b) do
+    hexcolor = Base.encode16(<<w, r, g, b>>)
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
 
@@ -30,13 +30,13 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
 
-  def fill_strip(strip, {r,g,b} = _color) when is_strip(strip) and is_rgb(r,g,b) do
-    hexcolor = Base.encode16(<<0,r,g,b>>)
+  def fill_strip(strip, {r, g, b} = _color) when is_strip(strip) and is_rgb(r, g, b) do
+    hexcolor = Base.encode16(<<0, r, g, b>>)
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
 
-  def fill_strip(strip, {w,r,g,b} = _color) when is_strip(strip) and is_wrgb(w,r,g,b) do
-    hexcolor = Base.encode16(<<w,r,g,b>>)
+  def fill_strip(strip, {w, r, g, b} = _color) when is_strip(strip) and is_wrgb(w, r, g, b) do
+    hexcolor = Base.encode16(<<w, r, g, b>>)
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
 
@@ -59,7 +59,7 @@ defmodule RGBPi.HAL do
   end
 
   def init(_args) do
-    file = Application.app_dir(:rgbpi,["priv","RGB"]) |> String.to_charlist()
+    file = Application.app_dir(:rgbpi, ["priv", "RGB"]) |> String.to_charlist()
 
     config = %{
       dma_channel: @dma_channel,
@@ -70,13 +70,13 @@ defmodule RGBPi.HAL do
     }
 
     port = connect_to_port(file, config)
-  
+
     state = %{
       file: file,
       config: config,
       port: port
     }
-    
+
     send(self(), :init_strips)
     {:ok, state}
   end
@@ -118,7 +118,7 @@ defmodule RGBPi.HAL do
     Logger.debug("RGB: #{payload}")
     {:noreply, state}
   end
-  
+
   def handle_info({_port, {:data, {_, 'ERR: ' ++ payload}}}, state) do
     Logger.error("RGB: #{payload}")
     {:noreply, state}
@@ -127,12 +127,12 @@ defmodule RGBPi.HAL do
   def handle_info({_port, {:data, {_, _payload}}}, state) do
     {:noreply, state}
   end
-  
+
   def handle_info({_port, {:exit_status, status}}, state) do
     Logger.error("RGB: died with exit_status: #{status}")
     {:noreply, state}
   end
-  
+
   defp connect_to_port(file, config) do
     args = [
       "#{config.dma_channel}",
@@ -150,18 +150,24 @@ defmodule RGBPi.HAL do
       :exit_status
     ])
   end
-    
+
   defp send_to_port(command, port) do
     Logger.debug("RGB: sending command \"#{command}\"")
-    Port.command(port , command <> "\n")
+    Port.command(port, command <> "\n")
     recieve_from_port(port)
   end
 
   defp recieve_from_port(port) do
     receive do
-      {^port, {:data, {_, 'OK'}}} -> :ok
-      {^port, {:data, {_, 'OK: ' ++ payload}}} -> {:ok, to_string(payload)}
-      {^port, {:data, {_, 'ERR: ' ++ payload}}} -> {:error,to_string(payload)}
+      {^port, {:data, {_, 'OK'}}} ->
+        :ok
+
+      {^port, {:data, {_, 'OK: ' ++ payload}}} ->
+        {:ok, to_string(payload)}
+
+      {^port, {:data, {_, 'ERR: ' ++ payload}}} ->
+        {:error, to_string(payload)}
+
       {^port, {:exit_status, status}} ->
         Logger.error("RGB has died with exit_status: #{status}")
         raise "RGB has died with exit_status: #{status}"
@@ -169,5 +175,4 @@ defmodule RGBPi.HAL do
       500 -> {:error, "timeout waiting for RGB to reply"}
     end
   end
-
 end

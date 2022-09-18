@@ -21,8 +21,8 @@ defmodule RGBPi.BLE.RGBService do
 
   def write(:color, color) do
     Logger.debug(color)
-    RGBPi.HAL.fill_strip(0,color)
-    RGBPi.HAL.fill_strip(1,color)
+    RGBPi.HAL.fill_strip(0, color)
+    RGBPi.HAL.fill_strip(1, color)
     RGBPi.HAL.render()
   end
 end
