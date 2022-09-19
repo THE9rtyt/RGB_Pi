@@ -1,4 +1,5 @@
-//I DON'T KNOW WHAT I'M DOING
+//Main RGB program for RGBPi Hardware Abstraction Layer.
+//does all of the communication and handling of the rpi_ws281x driver
 
 #include <limits.h>
 #include <stdlib.h>
@@ -15,6 +16,7 @@
 
 #include "rpi_ws281x/ws2811.h"
 #include "port_interface.h"
+#include "RGB_types.h"
 
 void set_pixel(ws2811_channel_t *channels) {
   uint8_t strip;
@@ -36,7 +38,7 @@ void fill_strip(ws2811_channel_t *channels) {
   uint8_t strip;
   ws2811_led_t color;
   char nl;
-  if (scanf("%hhu %x%c", &strip,&color, &nl) != 3 || nl != '\n') {
+  if (scanf("%hhu %x%c", &strip, &color, &nl) != 3 || nl != '\n') {
     reply_error("Argument error");
     return;
   };
@@ -46,6 +48,90 @@ void fill_strip(ws2811_channel_t *channels) {
   for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
     channels[strip].leds[pixel] = color;
   };
+  reply_ok();
+}
+
+#define THIRD 0x56
+
+ws2811_led_t hsv_to_rgb(HSV hsv) {
+  uint8_t hue = ((hsv >> 16) & 0xFF);
+  uint8_t sat = ((hsv >> 8) & 0xFF);
+  uint8_t val = ((hsv) & 0xFF);
+
+
+  uint8_t invsat = 255 - sat;
+  uint8_t brightness_floor = (val * invsat) / 255;
+
+  uint8_t color_amplitude = val - brightness_floor;
+
+  uint8_t section = hue / THIRD;
+
+  uint8_t offset;
+  //bug fix since I can't figure it out
+  if (hue == 255) {
+    offset = THIRD-1;
+  } else {
+    offset = hue % THIRD;
+  }
+  
+  uint8_t rampup = offset;
+  uint8_t rampdown = (THIRD - 1) - offset;
+
+  // compute color-amplitude-scaled-down versions of rampup and rampdown
+  uint8_t rampup_amp_adj   = (rampup   * color_amplitude) / (256 / 3);
+  uint8_t rampdown_amp_adj = (rampdown * color_amplitude) / (256 / 3);
+
+  // add brightness_floor offset to everything
+  uint8_t rampup_adj_with_floor   = rampup_amp_adj   + brightness_floor;
+  uint8_t rampdown_adj_with_floor = rampdown_amp_adj + brightness_floor;
+
+  if( section ) {
+    if( section == 1) {
+      // section 1: 0x56..0xAA
+      return((brightness_floor << 16) |
+      (rampdown_adj_with_floor << 8) |
+      (rampup_adj_with_floor))& 0xFFFFFFFF;
+    } else {
+      // section 2; 0xAB..0xFF
+      return((rampup_adj_with_floor << 16) |
+      (brightness_floor << 8) |
+      (rampdown_adj_with_floor)) & 0xFFFFFFFF;
+    }
+  } else {
+    // section 0: 0x00..0x55
+    return((rampdown_adj_with_floor << 16) |
+    (rampup_adj_with_floor << 8) |
+    (brightness_floor)) & 0xFFFFFFFF;
+  }
+}
+
+void hsvrgb() {
+  ws2811_led_t color;
+  char nl;
+  if (scanf("%x%c", &color, &nl) != 2 || nl != '\n') {
+    reply_error("Argument error");
+    return;
+  };
+
+  reply_ok_payload("%x", hsv_to_rgb(color));
+}
+
+void fill_rainbow(ws2811_channel_t *channels) {
+  uint8_t strip;
+  uint8_t hue_offset;
+  char nl;
+  if (scanf("%hhu %hhu%c", &strip, &hue_offset, &nl) != 3 || nl != '\n') {
+    reply_error("Argument error");
+    return;
+  };
+
+  debug("filling strip: %d hue_offset: %d", strip, hue_offset);
+
+  for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
+    channels[strip].leds[pixel] = hsv_to_rgb(hue_offset << 16 | 0xFFFF);
+    ++hue_offset;
+  };
+
   reply_ok();
 }
 
@@ -105,17 +191,20 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    if (!strcasecmp(buffer, "set_pixel")) {
-      set_pixel(ledstring.channel);
-    } else if (!strcasecmp(buffer, "fill_strip")) {
-      fill_strip(ledstring.channel);
-    }else if (!strcasecmp(buffer, "render")) {
+    if (!strcasecmp(buffer, "render")) {
       ws2811_return_t result = ws2811_render(&ledstring);
       if (result != WS2811_SUCCESS)
         errx(EXIT_FAILURE, "ws2811_render failed: %d (%s)", result, ws2811_get_return_t_str(result));
       reply_ok();
-
-    } else {
+    } else if (!strcasecmp(buffer, "set_pixel")) {
+      set_pixel(ledstring.channel);
+    } else if (!strcasecmp(buffer, "fill_strip")) {
+      fill_strip(ledstring.channel);
+    } else if (!strcasecmp(buffer, "fill_rainbow")) {
+      fill_rainbow(ledstring.channel);
+    } else if (!strcasecmp(buffer, "hsvrgb")) {
+      hsvrgb();
+    }else {
       reply_error("unknown command: %s", buffer);
     }
   }
