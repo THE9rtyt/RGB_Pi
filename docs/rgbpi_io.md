@@ -1,6 +1,6 @@
-# rgbpi hal commands
+# rgbpi commands
 
-## commands
+## HAL commands
 
 |Command|Arguments|Description|
 |-|-|-|
@@ -13,6 +13,10 @@
 |`fill_strip`|strip, R, G, B|sets the strip to specified color|
 |-|-|-|
 |`fill_rainbow`|strip, hue_offset|fills a strip with a rainbow starting with the given hue_offset|
+|-|-|-|
+|`fill_hue`|strip, #HHSSVV|returns the given color back in #RRGGBB|
+|-|-|-|
+|`fill_hue`|strip, hue_offset|returns the given color back in #RRGGBB|
 |-|-|-|
 |`strip_off`|strip|sets the strip to full black|
 |-|-|-|
