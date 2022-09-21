@@ -9,7 +9,11 @@ defmodule RGBPi.RGB do
   @update_time_ms 20
 
   def rainbow() do
-    GenServer.cast(__MODULE__, :rainbow)
+    GenServer.cast(__MODULE__, :rainbow_a)
+  end
+
+  def rainbow_solid() do
+    GenServer.cast(__MODULE__, :rainbow_s)
   end
 
   def off() do
@@ -31,8 +35,14 @@ defmodule RGBPi.RGB do
     {:ok, state}
   end
 
-  def handle_cast(:rainbow, state) do
-    timer_ref = Process.send_after(self(), :rainbow, 0)
+  def handle_cast(:rainbow_a, state) do
+    timer_ref = Process.send_after(self(), :rainbow_a, 0)
+
+    {:noreply, %{state | timer_ref: timer_ref}}
+  end
+
+  def handle_cast(:rainbow_s, state) do
+    timer_ref = Process.send_after(self(), :rainbow_s, 0)
 
     {:noreply, %{state | timer_ref: timer_ref}}
   end
@@ -45,22 +55,42 @@ defmodule RGBPi.RGB do
     {:noreply, state}
   end
 
-  def handle_info(:rainbow, %{animation_step: a} = state) when a <= 255 do
+  def handle_info(:rainbow_a, %{animation_step: a} = state) when a <= 255 do
     HAL.fill_rainbow(0, a)
     HAL.fill_rainbow(1, a)
     HAL.render()
 
-    timer_ref = Process.send_after(self(), :rainbow, state.animation_speed_ms)
+    timer_ref = Process.send_after(self(), :rainbow_a, state.animation_speed_ms)
 
     {:noreply, %{state | timer_ref: timer_ref, animation_step: a + 1}}
   end
 
-  def handle_info(:rainbow, %{animation_step: a} = state) when a > 255 do
+  def handle_info(:rainbow_a, %{animation_step: a} = state) when a > 255 do
     HAL.fill_rainbow(0, 0)
     HAL.fill_rainbow(1, 0)
     HAL.render()
 
-    timer_ref = Process.send_after(self(), :rainbow, state.animation_speed_ms)
+    timer_ref = Process.send_after(self(), :rainbow_a, state.animation_speed_ms)
+
+    {:noreply, %{state | timer_ref: timer_ref, animation_step: 1}}
+  end
+
+  def handle_info(:rainbow_s, %{animation_step: a} = state) when a <= 255 do
+    HAL.fill_hue(0, a)
+    HAL.fill_hue(1, a)
+    HAL.render()
+
+    timer_ref = Process.send_after(self(), :rainbow_s, state.animation_speed_ms)
+
+    {:noreply, %{state | timer_ref: timer_ref, animation_step: a + 1}}
+  end
+
+  def handle_info(:rainbow_s, %{animation_step: a} = state) when a > 255 do
+    HAL.fill_hue(0, 0)
+    HAL.fill_hue(1, 0)
+    HAL.render()
+
+    timer_ref = Process.send_after(self(), :rainbow_s, state.animation_speed_ms)
 
     {:noreply, %{state | timer_ref: timer_ref, animation_step: 1}}
   end

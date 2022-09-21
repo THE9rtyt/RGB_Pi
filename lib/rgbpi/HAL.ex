@@ -44,8 +44,13 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:fill_rainbow, strip, hue_offset})
   end
 
+  def fill_hue(strip, "#" <> hsvcolor) when is_strip(strip) do
+    GenServer.call(__MODULE__, {:fill_hue, strip, hsvcolor})
+  end
+
   def fill_hue(strip, hue_offset) when is_strip(strip) and hue_offset in 0..255 do
-    GenServer.call(__MODULE__, {:fill_hue, strip, hue_offset})
+    hsvcolor = Base.encode16(<<0, hue_offset, 0xff, 0xff>>)
+    GenServer.call(__MODULE__, {:fill_hue, strip, hsvcolor})
   end
 
   def hsv_to_rgb("#" <> hexcolor) do
@@ -107,12 +112,12 @@ defmodule RGBPi.HAL do
     {:reply, send_to_port("fill_rainbow #{strip} #{hue_offset}", state.port), state}
   end
 
-  def handle_call({:fill_hue, strip, hue_offset}, _from, state) do
-    {:reply, send_to_port("fill_hue #{strip} #{hue_offset}", state.port), state}
+  def handle_call({:fill_hue, strip, hsvcolor}, _from, state) do
+    {:reply, send_to_port("fill_hue #{strip} 0x#{hsvcolor}", state.port), state}
   end
 
-  def handle_call({:hsvrgb, color}, _from, state) do
-    {:reply, send_to_port("hsvrgb 0x#{color}", state.port), state}
+  def handle_call({:hsvrgb, hsvcolor}, _from, state) do
+    {:reply, send_to_port("hsvrgb 0x#{hsvcolor}", state.port), state}
   end
 
   def handle_call(:render, _from, state) do

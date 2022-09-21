@@ -137,16 +137,16 @@ void fill_rainbow(ws2811_channel_t *channels) {
 
 void fill_hue(ws2811_channel_t *channels) {
   uint8_t strip;
-  uint8_t hue_offset;
+  HSV hsvcolor;
   char nl;
-  if (scanf("%hhu %hhu%c", &strip, &hue_offset, &nl) != 3 || nl != '\n') {
+  if (scanf("%hhu %x%c", &strip, &hsvcolor, &nl) != 3 || nl != '\n') {
     reply_error("Argument error");
     return;
   };
 
-  debug("filling hue: %d hue_offset: %d", strip, hue_offset);
+  debug("filling hue: %d hsvcolor: %x", strip, hsvcolor);
 
-  ws2811_led_t color  = hsv_to_rgb(hue_offset << 16 | 0xFFFF);
+  ws2811_led_t color  = hsv_to_rgb(hsvcolor);
 
   for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
     channels[strip].leds[pixel] = color;
