@@ -125,11 +125,31 @@ void fill_rainbow(ws2811_channel_t *channels) {
     return;
   };
 
-  debug("filling strip: %d hue_offset: %d", strip, hue_offset);
+  debug("filling rainbow strip: %d hue_offset: %d", strip, hue_offset);
 
   for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
     channels[strip].leds[pixel] = hsv_to_rgb(hue_offset << 16 | 0xFFFF);
     ++hue_offset;
+  };
+
+  reply_ok();
+}
+
+void fill_hue(ws2811_channel_t *channels) {
+  uint8_t strip;
+  uint8_t hue_offset;
+  char nl;
+  if (scanf("%hhu %hhu%c", &strip, &hue_offset, &nl) != 3 || nl != '\n') {
+    reply_error("Argument error");
+    return;
+  };
+
+  debug("filling hue: %d hue_offset: %d", strip, hue_offset);
+
+  ws2811_led_t color  = hsv_to_rgb(hue_offset << 16 | 0xFFFF);
+
+  for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
+    channels[strip].leds[pixel] = color;
   };
 
   reply_ok();
@@ -202,6 +222,8 @@ int main(int argc, char *argv[]) {
       fill_strip(ledstring.channel);
     } else if (!strcasecmp(buffer, "fill_rainbow")) {
       fill_rainbow(ledstring.channel);
+    } else if (!strcasecmp(buffer, "fill_hue")) {
+      fill_hue(ledstring.channel);
     } else if (!strcasecmp(buffer, "hsvrgb")) {
       hsvrgb();
     }else {
