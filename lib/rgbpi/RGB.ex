@@ -36,19 +36,21 @@ defmodule RGBPi.RGB do
   end
 
   def handle_cast(:rainbow_a, state) do
+    _ = clear_timer(state)
     timer_ref = Process.send_after(self(), :rainbow_a, 0)
 
     {:noreply, %{state | timer_ref: timer_ref}}
   end
 
   def handle_cast(:rainbow_s, state) do
+    _ = clear_timer(state)
     timer_ref = Process.send_after(self(), :rainbow_s, 0)
 
     {:noreply, %{state | timer_ref: timer_ref}}
   end
 
-  def handle_cast(:off, %{timer_ref: timer_ref} = state) do
-    Process.cancel_timer(timer_ref)
+  def handle_cast(:off, state) do
+    _ = clear_timer(state)
     HAL.strip_off(0)
     HAL.strip_off(1)
     HAL.render()
@@ -94,4 +96,10 @@ defmodule RGBPi.RGB do
 
     {:noreply, %{state | timer_ref: timer_ref, animation_step: 1}}
   end
+
+  defp clear_timer(%{timer_ref: ref} = state) when is_reference(ref) do
+    Process.cancel_timer(state.timer_ref)
+  end
+
+  defp clear_timer(_), do: "" 
 end
