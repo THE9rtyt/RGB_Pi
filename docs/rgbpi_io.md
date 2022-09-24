@@ -2,6 +2,8 @@
 
 ## HAL commands
 
+#### HAL.[command]
+
 |Command|Arguments|Description|
 |-|-|-|
 |`set_pixel`|strip, pixel, #WWRRGGBB or #RRGGBB|sets a specific pixel on strip to specified color|
@@ -23,4 +25,17 @@
 |`render`|N/A|renders the current frame buffer|
 |-|-|-|
 |`hsv_to_rgb`|#HHSSVV|returns the given color back in #RRGGBB|
+|-|-|-|
+
+## RGB commands
+
+#### RGB.[command]
+
+|Command|Arguments|Description|
+|-|-|-|
+|`rainbow`|N/A|turns the addressable rainbow mode on|
+|-|-|-|
+|`rainbow_colid`|N/A|turns the solid rainbow mode on|
+|-|-|-|
+|`off`|N/A|turns any animations off|
 |-|-|-|

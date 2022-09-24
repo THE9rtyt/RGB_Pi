@@ -1,4 +1,8 @@
 defmodule RGBPi.HAL do
+  @moduledoc """
+  handles the RGB C application which wraps the rpi_ws218x driver
+  """
+
   import RGBPi.Guards
 
   use GenServer
@@ -49,7 +53,7 @@ defmodule RGBPi.HAL do
   end
 
   def fill_hue(strip, hue_offset) when is_strip(strip) and hue_offset in 0..255 do
-    hsvcolor = Base.encode16(<<0, hue_offset, 0xff, 0xff>>)
+    hsvcolor = Base.encode16(<<0, hue_offset, 0xFF, 0xFF>>)
     GenServer.call(__MODULE__, {:fill_hue, strip, hsvcolor})
   end
 

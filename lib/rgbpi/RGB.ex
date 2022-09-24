@@ -1,4 +1,8 @@
 defmodule RGBPi.RGB do
+  @moduledoc """
+  Animation App for RGBPi. handles all animations and renders through RGBPi.HAL
+  """
+
   alias RGBPi.HAL
 
   require Logger
@@ -101,5 +105,5 @@ defmodule RGBPi.RGB do
     Process.cancel_timer(state.timer_ref)
   end
 
-  defp clear_timer(_), do: "" 
+  defp clear_timer(_), do: ""
 end

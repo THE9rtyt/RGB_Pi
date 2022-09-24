@@ -64,7 +64,7 @@ ws2811_led_t hsv_to_rgb(HSV hsv) {
 
   uint8_t color_amplitude = val - brightness_floor;
 
-  uint8_t section = hue / THIRD;
+  uint8_t section = hue / THIRD;//0..2
 
   uint8_t offset;
   //bug fix since I can't figure it out

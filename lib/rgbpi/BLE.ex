@@ -1,15 +1,19 @@
 defmodule RGBPi.BLE do
+  @moduledoc """
+  BLE App
+  """
+
   alias BlueHeron.Peripheral
 
   use GenStateMachine, callback_mode: :handle_event_function
 
   require Logger
-  
+
   # called when entering all states
-  @action_init [{:next_event, :internal, :init}] 
+  @action_init [{:next_event, :internal, :init}]
   # called whenever bluetooth encounters an error, 
   # it then waits for 5 seconds before retrying the state init action
-  @action_timeout [{:timeout, 5000, nil}] 
+  @action_timeout [{:timeout, 5000, nil}]
 
   @behaviour BlueHeron.GATT.Server
 
