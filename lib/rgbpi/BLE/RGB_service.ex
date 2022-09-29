@@ -1,5 +1,9 @@
 defmodule RGBPi.BLE.RGBService do
   alias BlueHeron.GATT.{Characteristic, Service}
+  alias RGBPi.{
+    HAL,
+    Animations
+  }
 
   require Logger
 
@@ -40,28 +44,28 @@ defmodule RGBPi.BLE.RGBService do
   def read(_, _), do: "error"
 
   def write(:off, _) do
-    RGBPi.RGB.off()
+    Animations.off()
   end
 
   def write(:solid, color) do
-    RGBPi.HAL.fill_strip(0, color)
-    RGBPi.HAL.fill_strip(1, color)
-    RGBPi.HAL.render()
+    HAL.fill_strip(0, color)
+    HAL.fill_strip(1, color)
+    HAL.render()
   end
 
   def write(:hsv, color) do
-    RGBPi.HAL.fill_hue(0, color)
-    RGBPi.HAL.fill_hue(1, color)
-    RGBPi.HAL.render()
+    HAL.fill_hue(0, color)
+    HAL.fill_hue(1, color)
+    HAL.render()
   end
 
   def write(:rainbow_a, _) do
-    RGBPi.RGB.rainbow()
-    RGBPi.HAL.render()
+    Animations.rainbow()
+    HAL.render()
   end
 
   def write(:rainbow_s, _) do
-    RGBPi.RGB.rainbow_solid()
-    RGBPi.HAL.render()
+    Animations.rainbow_solid()
+    HAL.render()
   end
 end

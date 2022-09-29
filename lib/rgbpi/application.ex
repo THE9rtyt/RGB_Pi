@@ -15,7 +15,7 @@ defmodule RGBPi.Application do
       [
         {RGBPi.HAL, 1},
         {RGBPi.BLESupervisor, 2},
-        {RGBPi.RGB, 1}
+        {RGBPi.Animations, 1}
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)

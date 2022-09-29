@@ -1,4 +1,4 @@
-defmodule RGBPi.RGB do
+defmodule RGBPi.Animations do
   @moduledoc """
   Animation App for RGBPi. handles all animations and renders through RGBPi.HAL
   """
