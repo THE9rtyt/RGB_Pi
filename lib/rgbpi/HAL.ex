@@ -44,7 +44,7 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:fill_strip, strip, hexcolor})
   end
 
-  def fill_rainbow(strip, hue_offset) when is_strip(strip) and hue_offset in 0..255 do
+  def fill_rainbow(strip, hue_offset) when is_strip(strip) and is_hue(hue_offset) do
     GenServer.call(__MODULE__, {:fill_rainbow, strip, hue_offset})
   end
 
@@ -52,7 +52,7 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:fill_hue, strip, hsvcolor})
   end
 
-  def fill_hue(strip, hue_offset) when is_strip(strip) and hue_offset in 0..255 do
+  def fill_hue(strip, hue_offset) when is_strip(strip) and is_hue(hue_offset) do
     hsvcolor = Base.encode16(<<0, hue_offset, 0xFF, 0xFF>>)
     GenServer.call(__MODULE__, {:fill_hue, strip, hsvcolor})
   end
