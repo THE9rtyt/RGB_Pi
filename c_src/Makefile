@@ -13,7 +13,7 @@ CFLAGS += -std=c99 -D_GNU_SOURCE
 PREFIX = $(MIX_APP_PATH)/priv
 BUILD  = $(MIX_APP_PATH)/obj
 
-SRC = c_src/RGB.c \
+SRC = c_src/RGB.c c_src/hsv.c \
   c_src/rpi_ws281x/dma.c c_src/rpi_ws281x/mailbox.c c_src/rpi_ws281x/pwm.c \
   c_src/rpi_ws281x/rpihw.c c_src/rpi_ws281x/pcm.c c_src/rpi_ws281x/ws2811.c
 
