@@ -61,10 +61,6 @@ defmodule RGBPi.HAL do
     GenServer.call(__MODULE__, {:hsvrgb, hexcolor})
   end
 
-  def strip_off(strip) do
-    fill_strip(strip, "#00000000")
-  end
-
   def render() do
     GenServer.call(__MODULE__, :render)
   end

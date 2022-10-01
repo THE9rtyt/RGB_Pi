@@ -16,9 +16,9 @@
 |-|-|-|
 |`fill_rainbow`|strip, hue_offset|fills a strip with a rainbow starting with the given hue_offset|
 |-|-|-|
-|`fill_hue`|strip, #HHSSVV|returns the given color back in #RRGGBB|
+|`fill_hue`|strip, #HHSSVV|fills a strip with the specified hsv color|
 |-|-|-|
-|`fill_hue`|strip, hue_offset|returns the given color back in #RRGGBB|
+|`fill_hue`|strip, hue_offset|fills a strip with the hue where hue put in #HHFFFF|
 |-|-|-|
 |`strip_off`|strip|sets the strip to full black|
 |-|-|-|
