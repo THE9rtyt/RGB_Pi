@@ -1,4 +1,6 @@
 defmodule RGBPi.Guards do
+  @moduledoc false
+
   defguard is_strip(s)
            when s in 0..1
 

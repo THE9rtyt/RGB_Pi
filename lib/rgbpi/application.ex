@@ -1,7 +1,7 @@
 defmodule RGBPi.Application do
+  @moduledoc false
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
-  @moduledoc false
 
   use Application
 
@@ -14,7 +14,7 @@ defmodule RGBPi.Application do
     children =
       [
         {RGBPi.HAL, 1},
-        {RGBPi.BLESupervisor, 2},
+        {RGBPi.BLE, 1},
         {RGBPi.Status, 2}
       ] ++ children(target())
 
