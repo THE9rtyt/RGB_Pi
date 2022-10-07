@@ -63,12 +63,14 @@ defmodule RGBPi.Status do
     {:next_state, :solid, %{data | color: color}}
   end
 
-  def handle_event(:cast, {:solid_hsv, color}, _state, data) do
+  def handle_event(:cast, {:solid_hsv, hsv}, _state, data) do
     :ok = kill_animation(data.pid)
 
-    HAL.fill_hue(0, color)
-    HAL.fill_hue(1, color)
+    HAL.fill_hue(0, hsv)
+    HAL.fill_hue(1, hsv)
     HAL.render()
+
+    {:ok, color} = HAL.hsv_to_rgb(hsv)
     {:next_state, :solid, %{data | color: color}}
   end
 
