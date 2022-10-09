@@ -2,7 +2,7 @@
 
 ## HAL commands
 
-#### HAL.[command]
+### RGBPi.HAL.[command]\([Arguments])
 
 |Command|Arguments|Description|
 |-|-|-|
@@ -27,15 +27,16 @@
 |`hsv_to_rgb`|#HHSSVV|returns the given color back in #RRGGBB|
 |-|-|-|
 
-## RGB commands
+## Animation Servers
 
-#### RGB.[command]
+### start them with RGBPi.Animations.[Animation].startlink([Arguments])
+### giving it strip 0/1 goto channel 0 or 1 and if you give it 2 it will run both strips
 
 |Command|Arguments|Description|
 |-|-|-|
-|`rainbow`|N/A|turns the addressable rainbow mode on|
+|`RainbowAddressable`|strip|runs the Addressable Rainbow server on set strip(s)|
 |-|-|-|
-|`rainbow_colid`|N/A|turns the solid rainbow mode on|
+|`RainbowSolid`|strip|runs the Solid Rainbow Server on set strip(s)|
 |-|-|-|
-|`off`|N/A|turns any animations off|
+|`Sparklez`|strip|runs the Sparklez Server on set strip(s)|
 |-|-|-|

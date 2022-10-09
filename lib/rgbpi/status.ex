@@ -1,7 +1,7 @@
 defmodule RGBPi.Status do
   @moduledoc """
   a managed led strip control enviorment
-    Qol wrapper arounmd the RGBPi animations and HAL functions.
+    Qol wrapper around the RGBPi animations and HAL functions.
     handle start/kill animation servers
     will render leds at the end of each command
 
@@ -17,6 +17,11 @@ defmodule RGBPi.Status do
 
   require Logger
 
+  # every mode option will need 2 function calls
+  #   an api call
+  #   a handle_event call where you actually set what you want to do
+  #     make sure to always begin with :ok = kill_animation(data.pid) to kill any animations
+
   def solid(color) do
     GenStateMachine.cast(__MODULE__, {:solid, color})
   end
@@ -31,6 +36,10 @@ defmodule RGBPi.Status do
 
   def rainbow_s() do
     GenStateMachine.cast(__MODULE__, :rainbow_s)
+  end
+
+  def sparklez(speed) do
+    GenStateMachine.cast(__MODULE__, {:sparklez, speed})
   end
 
   def off() do
@@ -90,6 +99,16 @@ defmodule RGBPi.Status do
     {:ok, pid} = Animations.RainbowSolid.start_link(2)
 
     {:next_state, :rainbow_s, %{data | pid: pid}}
+  end
+
+  # sparklez mode
+
+  def handle_event(:cast, {:sparklez, speed}, _state, data) do
+    :ok = kill_animation(data.pid)
+
+    {:ok, pid} = Animations.Sparklez.start_link({2, speed})
+
+    {:next_state, :sparklez, %{data | pid: pid}}
   end
 
   # off

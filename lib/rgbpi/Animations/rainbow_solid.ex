@@ -25,16 +25,8 @@ defmodule RGBPi.Animations.RainbowSolid do
   end
 
   # main animation loop
-  def handle_info(__MODULE__, %{animation_step: a} = state) when a <= 255 do
-    case state.strip do
-      2 ->
-        HAL.fill_hue(0, a)
-        HAL.fill_hue(1, a)
-
-      s ->
-        HAL.fill_hue(s, a)
-    end
-
+  def handle_info(:timer, state) do
+    set_strip(state)
     HAL.render()
 
     state =
@@ -49,6 +41,15 @@ defmodule RGBPi.Animations.RainbowSolid do
     {:stop, :normal, state}
   end
 
+  defp set_strip(%{animation_step: a, strip: 2} = _state) do
+    HAL.fill_hue(0, a)
+    HAL.fill_hue(1, a)
+  end
+
+  defp set_strip(%{animation_step: a, strip: s} = _state) do
+    HAL.fill_hue(s, a)
+  end
+
   defp animation_next_step(%{animation_step: a} = state) when a < 255 do
     %{state | animation_step: a + 1}
   end
@@ -56,7 +57,7 @@ defmodule RGBPi.Animations.RainbowSolid do
   defp animation_next_step(state), do: %{state | animation_step: 0}
 
   defp new_timer(state) do
-    timer_ref = Process.send_after(self(), __MODULE__, @update_time_ms)
+    timer_ref = Process.send_after(self(), :timer, @update_time_ms)
     %{state | timer_ref: timer_ref}
   end
 end

@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 //un comment for debug messages
-#define DEBUG
+// #define DEBUG
 
 #include "rpi_ws281x/ws2811.h"
 #include "port_interface.h"
@@ -27,6 +27,11 @@ void set_pixel(ws2811_channel_t *channels) {
     reply_error("Argument error");
     return;
   };
+
+  if (pixel > channels[strip].count) {
+    reply_error("pixel is outside of strip");
+    return;
+  }
   
   debug("setting strip: %d pixel: %d color: 0x%08x", strip, pixel, color);
 
@@ -64,7 +69,7 @@ void fill_rainbow(ws2811_channel_t *channels) {
 
   for (uint16_t pixel = 0; pixel < channels[strip].count; ++pixel) {
     channels[strip].leds[pixel] = hsv_to_rgb(hue_offset << 16 | 0xFFFF);
-    ++hue_offset;
+    --hue_offset;
   };
 
   reply_ok();
