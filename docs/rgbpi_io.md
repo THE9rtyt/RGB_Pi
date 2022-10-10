@@ -33,6 +33,7 @@
 
 ### start them with RGBPi.Animations.[Animation].startlink([Arguments])
 ### giving it strip 0/1 goto channel 0 or 1 and if you give it 2 it will run both strips
+##### note: using option 2 for strip to run both assumes the strips are the same length.
 
 |Command|Arguments|Description|
 |-|-|-|

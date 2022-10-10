@@ -31,3 +31,10 @@ if Mix.target() == :host do
 else
   import_config "target.exs"
 end
+
+config :rgbpi,
+  dma_channel: 10,
+  strip0_pin: 12,
+  strip0_length: 150,
+  strip1_pin: 13,
+  strip1_length: 150
