@@ -13,10 +13,11 @@ defmodule RGBPi.Animations.Sparklez do
     state =
       %{
         strip: strip,
+        strip_length: nil,
         step_time_ms: step_time_ms,
-        animation_step: 0,
         timer_ref: nil
       }
+      |> get_length()
       |> new_timer()
 
     {:ok, state}
@@ -36,17 +37,27 @@ defmodule RGBPi.Animations.Sparklez do
     {:stop, :normal, state}
   end
 
-  defp set_strip(%{strip: 2} = _state) do
-    HAL.set_pixel(0, Enum.random(0..150), random_color())
-    HAL.set_pixel(1, Enum.random(0..150), random_color())
+  defp set_strip(%{strip: 2} = state) do
+    HAL.set_pixel(0, random_range(state), random_color())
+    HAL.set_pixel(1, random_range(state), random_color())
   end
 
   defp set_strip(%{strip: s} = _state) do
-    HAL.set_pixel(s, Enum.random(0..150), random_color())
+    HAL.set_pixel(s, random_range(state), random_color())
+  end
+
+  #minimum of 2 required
+  @min_length 2
+  @max_length 6
+
+  defp random_range(%{strip_length: strip_length} = _state) do
+    length = Enum.random(@min_length..@max_length)
+    placement = Enum.random(0..strip_length-length)
+    placement..placement+length
   end
 
   @full_color 200..255
-  @partial_color 0..64
+  @partial_color 0..128
 
   defp random_color() do
     case Enum.random(0..2) do
@@ -68,6 +79,15 @@ defmodule RGBPi.Animations.Sparklez do
         b = Enum.random(@full_color)
         {r, g, b}
     end
+  end
+
+  defp get_length(%{strip: 1} = state) do
+    %{state | strip_length: Application.get_env(:rgbpi, :strip1_length)}
+  end
+
+  #we assume the strips are the same length when using mode 2
+  defp get_length(%{strip: _} = state) do
+    %{state | strip_length: Application.get_env(:rgbpi, :strip0_length)}
   end
 
   defp new_timer(state) do

@@ -9,12 +9,6 @@ defmodule RGBPi.HAL do
 
   require Logger
 
-  @dma_channel 10
-  @strip1_pin 12
-  @strip1_length 150
-  @strip2_pin 13
-  @strip2_length 150
-
   def set_pixel(strip, pixel, "#" <> hexcolor) when is_strip(strip) do
     GenServer.call(__MODULE__, {:set_pixel, strip, pixel, hexcolor})
   end
@@ -84,13 +78,7 @@ defmodule RGBPi.HAL do
   def init(_args) do
     file = Application.app_dir(:rgbpi, ["priv", "RGB"]) |> String.to_charlist()
 
-    config = %{
-      dma_channel: @dma_channel,
-      strip1_pin: @strip1_pin,
-      strip1_length: @strip1_length,
-      strip2_pin: @strip2_pin,
-      strip2_length: @strip2_length
-    }
+    config = Application.get_all_env(:rgbpi)
 
     port = connect_to_port(file, config)
 
@@ -104,8 +92,15 @@ defmodule RGBPi.HAL do
     {:ok, state}
   end
 
-  def handle_call({:set_pixel, strip, pixel, color}, _from, state) do
+  def handle_call({:set_pixel, strip, pixel, color}, _from, state) when is_integer(pixel) do
     {:reply, send_to_port("set_pixel #{strip} #{pixel} 0x#{color}", state.port), state}
+  end
+
+  def handle_call({:set_pixel, strip, first_pixel..last_pixel, color}, _from, state) do
+    {:reply,
+     Enum.reduce(first_pixel-1..last_pixel, fn(p, _acc) ->
+       send_to_port("set_pixel #{strip} #{p} 0x#{color}", state.port)
+     end), state}
   end
 
   def handle_call({:fill_strip, strip, color}, _from, state) do
@@ -174,11 +169,11 @@ defmodule RGBPi.HAL do
 
   defp connect_to_port(file, config) do
     args = [
-      "#{config.dma_channel}",
-      "#{config.strip1_pin}",
-      "#{config.strip1_length}",
-      "#{config.strip2_pin}",
-      "#{config.strip2_length}"
+      "#{config[:dma_channel]}",
+      "#{config[:strip0_pin]}",
+      "#{config[:strip0_length]}",
+      "#{config[:strip1_pin]}",
+      "#{config[:strip1_length]}"
     ]
 
     Port.open({:spawn_executable, file}, [
