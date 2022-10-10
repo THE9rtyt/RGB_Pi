@@ -20,6 +20,8 @@
 |-|-|-|
 |`fill_hue`|strip, hue_offset|fills a strip with the hue where hue put in #HHFFFF|
 |-|-|-|
+|`set_brightness`|strip, brightness|sets strip to brightness|
+|-|-|-|
 |`strip_off`|strip|sets the strip to full black|
 |-|-|-|
 |`render`|N/A|renders the current frame buffer|

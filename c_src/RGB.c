@@ -95,6 +95,22 @@ void fill_hue(ws2811_channel_t *channels) {
   reply_ok();
 }
 
+void set_brightness(ws2811_channel_t *channels) {
+  uint8_t strip;
+  uint8_t brightness;
+  char nl;
+  if (scanf("%hhu %hhu%c", &strip, &brightness, &nl) != 3 || nl != '\n') {
+    reply_error("Argument error");
+    return;
+  };
+
+  debug("setting brightness strip: %d brightness: %d", strip, brightness);
+
+  channels[strip].brightness = brightness;
+
+  reply_ok();
+}
+
 void hsvrgb() {
   ws2811_led_t color;
   char nl;
@@ -175,6 +191,8 @@ int main(int argc, char *argv[]) {
       fill_rainbow(ledstring.channel);
     } else if (!strcasecmp(buffer, "fill_hue")) {
       fill_hue(ledstring.channel);
+    } else if (!strcasecmp(buffer, "set_brightness")) {
+      set_brightness(ledstring.channel);
     } else if (!strcasecmp(buffer, "hsvrgb")) {
       hsvrgb();
     }else {
