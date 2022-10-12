@@ -5,18 +5,16 @@ defmodule RGBPi.Animations.RainbowSolid do
 
   use GenServer
 
-  # animation settings
-  @update_time_ms 20
-
-  def start_link(strip) do
-    GenServer.start_link(__MODULE__, strip)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts)
   end
 
-  def init(strip) do
+  def init({strip, step_time_ms}) do
     state =
       %{
         strip: strip,
         animation_step: 0,
+        step_time_ms: step_time_ms,
         timer_ref: nil
       }
       |> new_timer()
@@ -26,13 +24,14 @@ defmodule RGBPi.Animations.RainbowSolid do
 
   # main animation loop
   def handle_info(:timer, state) do
-    set_strip(state)
     HAL.render()
 
     state =
       state
       |> animation_next_step()
       |> new_timer()
+
+    set_strip(state)
 
     {:noreply, state}
   end
@@ -57,7 +56,7 @@ defmodule RGBPi.Animations.RainbowSolid do
   defp animation_next_step(state), do: %{state | animation_step: 0}
 
   defp new_timer(state) do
-    timer_ref = Process.send_after(self(), :timer, @update_time_ms)
+    timer_ref = Process.send_after(self(), :timer, state.step_time_ms)
     %{state | timer_ref: timer_ref}
   end
 end

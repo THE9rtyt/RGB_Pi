@@ -25,10 +25,11 @@ defmodule RGBPi.Animations.Sparklez do
 
   # main animation loop
   def handle_info(:timer, state) do
-    set_strip(state)
     HAL.render()
-
+    
     state = new_timer(state)
+
+    set_strip(state)
 
     {:noreply, state}
   end
@@ -42,7 +43,7 @@ defmodule RGBPi.Animations.Sparklez do
     HAL.set_pixel(1, random_range(state), random_color())
   end
 
-  defp set_strip(%{strip: s} = _state) do
+  defp set_strip(%{strip: s} = state) do
     HAL.set_pixel(s, random_range(state), random_color())
   end
 
