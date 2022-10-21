@@ -30,12 +30,12 @@ defmodule RGBPi.Status do
     GenStateMachine.cast(__MODULE__, {:solid_hsv, color})
   end
 
-  def rainbow_a() do
-    GenStateMachine.cast(__MODULE__, :rainbow_a)
+  def rainbow_a(speed) do
+    GenStateMachine.cast(__MODULE__, {:rainbow_a, speed})
   end
 
-  def rainbow_s() do
-    GenStateMachine.cast(__MODULE__, :rainbow_s)
+  def rainbow_s(speed) do
+    GenStateMachine.cast(__MODULE__, {:rainbow_s, speed})
   end
 
   def sparklez(speed) do
@@ -85,18 +85,18 @@ defmodule RGBPi.Status do
 
   # rainbow modes
 
-  def handle_event(:cast, :rainbow_a, _state, data) do
+  def handle_event(:cast, {:rainbow_a, speed}, _state, data) do
     :ok = kill_animation(data.pid)
 
-    {:ok, pid} = Animations.RainbowAddressable.start_link(2)
+    {:ok, pid} = Animations.RainbowAddressable.start_link({2,speed})
 
     {:next_state, :rainbow_a, %{data | pid: pid}}
   end
 
-  def handle_event(:cast, :rainbow_s, _state, data) do
+  def handle_event(:cast, {:rainbow_s, speed}, _state, data) do
     :ok = kill_animation(data.pid)
 
-    {:ok, pid} = Animations.RainbowSolid.start_link(2)
+    {:ok, pid} = Animations.RainbowSolid.start_link({2,speed})
 
     {:next_state, :rainbow_s, %{data | pid: pid}}
   end
