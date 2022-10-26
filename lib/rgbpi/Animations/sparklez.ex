@@ -26,7 +26,7 @@ defmodule RGBPi.Animations.Sparklez do
   # main animation loop
   def handle_info(:timer, state) do
     HAL.render()
-    
+
     state = new_timer(state)
 
     set_strip(state)
@@ -47,14 +47,14 @@ defmodule RGBPi.Animations.Sparklez do
     HAL.set_pixel(s, random_range(state), random_color())
   end
 
-  #minimum of 2 required
+  # minimum of 2 required
   @min_length 2
   @max_length 6
 
   defp random_range(%{strip_length: strip_length} = _state) do
     length = Enum.random(@min_length..@max_length)
-    placement = Enum.random(0..strip_length-length)
-    placement..placement+length
+    placement = Enum.random(0..(strip_length - length))
+    placement..(placement + length)
   end
 
   @full_color 200..255
@@ -86,7 +86,7 @@ defmodule RGBPi.Animations.Sparklez do
     %{state | strip_length: Application.get_env(:rgbpi, :strip1_length)}
   end
 
-  #we assume the strips are the same length when using mode 2
+  # we assume the strips are the same length when using mode 2
   defp get_length(%{strip: _} = state) do
     %{state | strip_length: Application.get_env(:rgbpi, :strip0_length)}
   end

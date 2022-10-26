@@ -98,7 +98,7 @@ defmodule RGBPi.HAL do
 
   def handle_call({:set_pixel, strip, first_pixel..last_pixel, color}, _from, state) do
     {:reply,
-     Enum.reduce(first_pixel-1..last_pixel, fn(p, _acc) ->
+     Enum.reduce((first_pixel - 1)..last_pixel, fn p, _acc ->
        send_to_port("set_pixel #{strip} #{p} 0x#{color}", state.port)
      end), state}
   end

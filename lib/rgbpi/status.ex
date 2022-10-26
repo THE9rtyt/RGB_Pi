@@ -88,7 +88,7 @@ defmodule RGBPi.Status do
   def handle_event(:cast, {:rainbow_a, speed}, _state, data) do
     :ok = kill_animation(data.pid)
 
-    {:ok, pid} = Animations.RainbowAddressable.start_link({2,speed})
+    {:ok, pid} = Animations.RainbowAddressable.start_link({2, speed})
 
     {:next_state, :rainbow_a, %{data | pid: pid}}
   end
@@ -96,7 +96,7 @@ defmodule RGBPi.Status do
   def handle_event(:cast, {:rainbow_s, speed}, _state, data) do
     :ok = kill_animation(data.pid)
 
-    {:ok, pid} = Animations.RainbowSolid.start_link({2,speed})
+    {:ok, pid} = Animations.RainbowSolid.start_link({2, speed})
 
     {:next_state, :rainbow_s, %{data | pid: pid}}
   end
