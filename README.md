@@ -1,7 +1,7 @@
 # RGB_Pi
 
 <p> a simple Nerves project to get me familiar with Nerves, elixir and some C.<br>
-built on Raspberry Pi Zero 2
+built for Raspberry Pi, using the rpi_ws281x driver
 </p>
 
 ### Features:

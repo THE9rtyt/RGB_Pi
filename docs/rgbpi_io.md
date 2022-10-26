@@ -18,7 +18,7 @@
 |-|-|-|
 |`fill_hue`|strip, #HHSSVV|fills a strip with the specified hsv color|
 |-|-|-|
-|`fill_hue`|strip, hue_offset|fills a strip with the hue where hue put in #HHFFFF|
+|`fill_hue`|strip, hue_offset|fills a strip with the an hsv color of #[hue_offset]FFFF|
 |-|-|-|
 |`set_brightness`|strip, brightness|sets strip to brightness|
 |-|-|-|
