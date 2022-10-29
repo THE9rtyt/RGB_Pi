@@ -52,11 +52,11 @@ defmodule RGBPi.BLE.RGBService do
     Status.solid_hsv(color)
   end
 
-  def write(:rainbow_a, _) do
-    Status.rainbow_a()
+  def write(:rainbow_a, <<update_time_ms>>) do
+    Status.rainbow_a(update_time_ms)
   end
 
-  def write(:rainbow_s, _) do
-    Status.rainbow_s()
+  def write(:rainbow_s, <<update_time_ms>>) do
+    Status.rainbow_s(update_time_ms)
   end
 end
